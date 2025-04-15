@@ -24,6 +24,9 @@ type AloChatScreenProps = {
   namespace: string;
   phone_number: string;
   security_token: string;
+  customHeader?: React.ReactNode;
+  initialMessage?: string;
+  onClose?: () => void;
 };
 
 export interface MessageType {
@@ -41,25 +44,17 @@ export default function AloChatScreen({
   namespace,
   phone_number,
   security_token,
+  customHeader,
+  initialMessage = 'Hoşgeldiniz. Sizi müşteri temsilcisine aktarıyorum.',
+  onClose,
 }: AloChatScreenProps) {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
   const [activeChatKey, setActiveChatKey] = useState('');
   const [chatEnded, setChatEnded] = useState(false);
-  const [messages, setMessages] = useState<MessageType[]>([
-    {
-      id: 1,
-      from: 'support',
-      message: 'Bağlantı sağlanıyor...',
-    },
-  ]);
+  const [messages, setMessages] = useState<MessageType[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const scrollViewRef = React.useRef<ScrollView>(null);
-
-  console.log({
-    chatToken,
-    activeChatKey,
-  });
 
   useEffect(() => {
     initializeChat();
@@ -95,7 +90,7 @@ export default function AloChatScreen({
           {
             id: 1,
             from: 'support',
-            message: 'Hoşgeldiniz. Sizi müşteri temsilcisine aktarıyorum.',
+            message: initialMessage,
           },
         ]);
       }
@@ -216,13 +211,18 @@ export default function AloChatScreen({
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Header
-        chatEnded={chatEnded}
-        setChatEnded={setChatEnded}
-        chatToken={chatToken}
-        setMessages={setMessages}
-        loading={loading}
-      />
+      {customHeader ? (
+        customHeader
+      ) : (
+        <Header
+          chatEnded={chatEnded}
+          setChatEnded={setChatEnded}
+          chatToken={chatToken}
+          setMessages={setMessages}
+          loading={loading}
+          onClose={onClose}
+        />
+      )}
 
       {/* Chat messages */}
       <ScrollView

@@ -11,6 +11,7 @@ type HeaderProps = {
   chatToken: string;
   setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
   loading: boolean;
+  onClose?: () => void;
 };
 
 export default function Header({
@@ -19,6 +20,7 @@ export default function Header({
   chatToken,
   setMessages,
   loading,
+  onClose,
 }: HeaderProps) {
   const handleClosePress = () => {
     if (chatEnded) return;
@@ -54,6 +56,7 @@ export default function Header({
           message: 'Görüşme sonlandırılmıştır.',
         },
       ]);
+      onClose?.();
     } catch (error) {
       console.error('Failed to end chat:', error);
       Alert.alert(

@@ -1,5 +1,5 @@
 import ChatScreen from 'alo-chat-sdk';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function App() {
   return (
