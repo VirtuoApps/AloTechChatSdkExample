@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import CloseIcon from '../example/src/CloseIcon';
 import axios from 'axios';
@@ -41,6 +42,7 @@ export default function AloChatScreen({
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
   const [activeChatKey, setActiveChatKey] = useState('');
+  const [chatEnded, setChatEnded] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([
     {
       id: 1,
@@ -108,8 +110,51 @@ export default function AloChatScreen({
     }
   };
 
+  const handleClosePress = () => {
+    if (chatEnded) return;
+
+    Alert.alert(
+      'Konuşmayı Sonlandır',
+      'Konuşmayı sonlandırmak istediğinize emin misiniz?',
+      [
+        {
+          text: 'Hayır',
+          style: 'cancel',
+        },
+        {
+          text: 'Evet',
+          onPress: endChat,
+        },
+      ]
+    );
+  };
+
+  const endChat = async () => {
+    try {
+      setChatEnded(true);
+      await axios.post('https://chatserver.alo-tech.com/chat-api/end', {
+        token: chatToken,
+      });
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: prevMessages.length + 1,
+          from: 'support',
+          message: 'Görüşme sonlandırılmıştır.',
+        },
+      ]);
+    } catch (error) {
+      console.error('Failed to end chat:', error);
+      Alert.alert(
+        'Hata',
+        'Görüşme sonlandırılırken bir hata oluştu. Lütfen tekrar deneyin.'
+      );
+    }
+  };
+
   const sendMessage = async () => {
-    if (inputMessage.trim() === '' || !chatToken) return;
+    if (inputMessage.trim() === '' || !chatToken || chatEnded) return;
 
     const newMessage = {
       id: messages.length + 1,
@@ -219,11 +264,15 @@ export default function AloChatScreen({
           <View>
             <Text style={styles.headerTitle}>Canlı Destek</Text>
             <Text style={styles.headerSubtitle}>
-              {loading ? 'Bağlanıyor...' : 'Çevrimiçi'}
+              {loading
+                ? 'Bağlanıyor...'
+                : chatEnded
+                  ? 'Çevrimdışı'
+                  : 'Çevrimiçi'}
             </Text>
           </View>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleClosePress}>
           <CloseIcon />
         </TouchableOpacity>
       </View>
@@ -292,17 +341,22 @@ export default function AloChatScreen({
         style={styles.inputContainer}
       >
         <TextInput
-          style={styles.input}
-          placeholder="Mesajınızı yazın..."
-          placeholderTextColor="#999"
+          style={[styles.input, chatEnded && styles.disabledInput]}
+          placeholder={
+            chatEnded ? 'Görüşme sonlandırılmıştır' : 'Mesajınızı yazın...'
+          }
+          placeholderTextColor={chatEnded ? '#999' : '#999'}
           value={inputMessage}
           onChangeText={setInputMessage}
-          editable={!loading}
+          editable={!loading && !chatEnded}
         />
         <TouchableOpacity
-          style={[styles.sendButton, loading && styles.disabledButton]}
+          style={[
+            styles.sendButton,
+            (loading || chatEnded) && styles.disabledButton,
+          ]}
           onPress={sendMessage}
-          disabled={loading}
+          disabled={loading || chatEnded}
         >
           <Text style={styles.sendButtonText}>Gönder</Text>
         </TouchableOpacity>
@@ -457,5 +511,9 @@ const styles = StyleSheet.create({
   },
   messageStatusError: {
     color: '#ff4444',
+  },
+  disabledInput: {
+    backgroundColor: '#E5E5E5',
+    color: '#999',
   },
 });
