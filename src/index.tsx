@@ -13,6 +13,9 @@ import {
 } from 'react-native';
 import CloseIcon from '../example/src/CloseIcon';
 import axios from 'axios';
+import { styles } from './styles';
+import Header from './Header/Header';
+import InputBox from './InputBox/InputBox';
 
 type AloChatScreenProps = {
   clientEmail: string;
@@ -23,7 +26,7 @@ type AloChatScreenProps = {
   security_token: string;
 };
 
-interface MessageType {
+export interface MessageType {
   id: number;
   from: string;
   message: string;
@@ -107,49 +110,6 @@ export default function AloChatScreen({
       ]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleClosePress = () => {
-    if (chatEnded) return;
-
-    Alert.alert(
-      'Konuşmayı Sonlandır',
-      'Konuşmayı sonlandırmak istediğinize emin misiniz?',
-      [
-        {
-          text: 'Hayır',
-          style: 'cancel',
-        },
-        {
-          text: 'Evet',
-          onPress: endChat,
-        },
-      ]
-    );
-  };
-
-  const endChat = async () => {
-    try {
-      setChatEnded(true);
-      await axios.post('https://chatserver.alo-tech.com/chat-api/end', {
-        token: chatToken,
-      });
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          id: prevMessages.length + 1,
-          from: 'support',
-          message: 'Görüşme sonlandırılmıştır.',
-        },
-      ]);
-    } catch (error) {
-      console.error('Failed to end chat:', error);
-      Alert.alert(
-        'Hata',
-        'Görüşme sonlandırılırken bir hata oluştu. Lütfen tekrar deneyin.'
-      );
     }
   };
 
@@ -256,26 +216,13 @@ export default function AloChatScreen({
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerContent}>
-          <View style={styles.profileIcon}>
-            <Text style={styles.profileIconText}>CD</Text>
-          </View>
-          <View>
-            <Text style={styles.headerTitle}>Canlı Destek</Text>
-            <Text style={styles.headerSubtitle}>
-              {loading
-                ? 'Bağlanıyor...'
-                : chatEnded
-                  ? 'Çevrimdışı'
-                  : 'Çevrimiçi'}
-            </Text>
-          </View>
-        </View>
-        <TouchableOpacity onPress={handleClosePress}>
-          <CloseIcon />
-        </TouchableOpacity>
-      </View>
+      <Header
+        chatEnded={chatEnded}
+        setChatEnded={setChatEnded}
+        chatToken={chatToken}
+        setMessages={setMessages}
+        loading={loading}
+      />
 
       {/* Chat messages */}
       <ScrollView
@@ -336,184 +283,13 @@ export default function AloChatScreen({
       </ScrollView>
 
       {/* Message input */}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.inputContainer}
-      >
-        <TextInput
-          style={[styles.input, chatEnded && styles.disabledInput]}
-          placeholder={
-            chatEnded ? 'Görüşme sonlandırılmıştır' : 'Mesajınızı yazın...'
-          }
-          placeholderTextColor={chatEnded ? '#999' : '#999'}
-          value={inputMessage}
-          onChangeText={setInputMessage}
-          editable={!loading && !chatEnded}
-        />
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            (loading || chatEnded) && styles.disabledButton,
-          ]}
-          onPress={sendMessage}
-          disabled={loading || chatEnded}
-        >
-          <Text style={styles.sendButtonText}>Gönder</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
+      <InputBox
+        chatEnded={chatEnded}
+        loading={loading}
+        inputMessage={inputMessage}
+        setInputMessage={setInputMessage}
+        sendMessage={sendMessage}
+      />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  profileIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E1E1E1',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
-  },
-  profileIconText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: '#67AB4C',
-  },
-  closeButton: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#999',
-  },
-  messagesContainer: {
-    flex: 1,
-    padding: 15,
-  },
-  supportMessageContainer: {
-    marginBottom: 20,
-    alignItems: 'flex-start',
-  },
-  supportMessage: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 18,
-    borderBottomLeftRadius: 5,
-    maxWidth: '80%',
-    color: '#333',
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  messageStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  supportName: {
-    fontSize: 14,
-    color: '#333',
-    marginTop: 5,
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 18,
-    borderBottomLeftRadius: 5,
-    maxWidth: '80%',
-  },
-  userMessageContainer: {
-    alignItems: 'flex-end',
-    marginBottom: 10,
-  },
-  userMessage: {
-    backgroundColor: '#1877F2',
-    color: 'white',
-    padding: 12,
-    borderRadius: 18,
-    borderBottomRightRadius: 5,
-    maxWidth: '80%',
-    fontSize: 14,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 10,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginRight: 10,
-    fontSize: 14,
-  },
-  sendButton: {
-    backgroundColor: '#1877F2',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    justifyContent: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#B0C4DE',
-  },
-  sendButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  messageStatusText: {
-    fontSize: 12,
-    color: '#999',
-    alignSelf: 'flex-end',
-    marginTop: 4,
-    marginRight: 4,
-  },
-  messageStatusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginTop: 4,
-  },
-  retryButton: {
-    marginLeft: 8,
-    padding: 4,
-    backgroundColor: '#ff4444',
-    borderRadius: 4,
-  },
-  retryButtonText: {
-    color: 'white',
-    fontSize: 10,
-  },
-  messageStatusError: {
-    color: '#ff4444',
-  },
-  disabledInput: {
-    backgroundColor: '#E5E5E5',
-    color: '#999',
-  },
-});
