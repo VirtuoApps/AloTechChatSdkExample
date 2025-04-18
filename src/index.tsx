@@ -2,16 +2,10 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   SafeAreaView,
   TouchableOpacity,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
-import CloseIcon from '../example/src/CloseIcon';
 import axios from 'axios';
 import { styles } from './styles';
 import Header from './Header/Header';
@@ -50,7 +44,6 @@ export default function AloChatScreen({
 }: AloChatScreenProps) {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
-  const [activeChatKey, setActiveChatKey] = useState('');
   const [chatEnded, setChatEnded] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -85,7 +78,7 @@ export default function AloChatScreen({
 
       if (response.data.success) {
         setChatToken(response.data.token);
-        setActiveChatKey(response.data.active_chat_key);
+        // setActiveChatKey(response.data.active_chat_key);
         setMessages([
           {
             id: 1,

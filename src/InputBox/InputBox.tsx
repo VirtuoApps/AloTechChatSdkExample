@@ -3,7 +3,6 @@ import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { TextInput } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
 import { styles } from '../styles';
-import type { MessageType } from 'alo-chat-sdk';
 
 type InputBoxProps = {
   chatEnded: boolean;
