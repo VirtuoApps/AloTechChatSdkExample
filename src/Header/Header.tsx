@@ -61,7 +61,7 @@ export default function Header({
       console.error('Failed to end chat:', error);
       Alert.alert(
         'Hata',
-        'Görüşme sonlandırılırken bir hata oluştu. Lütfen tekrar deneyin.'
+        'Görüşme sonlandırılırken bir hata oluştu, lütfen tekrar deneyin.'
       );
     }
   };
