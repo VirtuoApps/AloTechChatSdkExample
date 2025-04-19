@@ -61,6 +61,20 @@ export default function AloChatScreen({
   const initializeChat = useCallback(async () => {
     try {
       if (initialChatToken && initialChatKey) {
+        const res = await axios.post(
+          'https://chatserver.alo-tech.com/chat-api/get_message',
+          {
+            token: initialChatToken,
+            active_chat_key: initialChatKey,
+          }
+        );
+
+        console.log({
+          data: res.data,
+          initialChatToken,
+          initialChatKey,
+        });
+
         setChatToken(initialChatToken);
         setActiveChatKey(initialChatKey);
       } else {
@@ -115,10 +129,6 @@ export default function AloChatScreen({
         try {
           const data = JSON.parse(event.data);
 
-          console.log({
-            data,
-          });
-
           if (data.type === 'setting' && data.text === 'queued') {
             // Müşteri temsilcisi mesajı kuyrukta (Müşteri temsilcisi mesajı kuyrukta)
             //Burada bir şey yapılmayacak şu anda
@@ -130,20 +140,20 @@ export default function AloChatScreen({
             setIsTyping(true);
 
             // Clear existing timeout if there is one
-            if (typingTimeoutRef.current) {
-              clearTimeout(typingTimeoutRef.current);
-            }
+            // if (typingTimeoutRef.current) {
+            //   clearTimeout(typingTimeoutRef.current);
+            // }
 
-            // Set new timeout to reset typing status after 3 seconds
-            typingTimeoutRef.current = setTimeout(() => {
-              setIsTyping(false);
-            }, 3000);
+            // // Set new timeout to reset typing status after 3 seconds
+            // typingTimeoutRef.current = setTimeout(() => {
+            //   setIsTyping(false);
+            // }, 3000);
           } else if (
             data.type === 'text' &&
             data.type !== 'system' &&
             data.text.length > 0
           ) {
-            //TODO: Müşteri temsilcisi mesaj gönderdi
+            //Müşteri temsilcisi mesaj gönderdi
             handleNewMessageFormat(data);
             // When message is received, typing is done
             setIsTyping(false);
@@ -153,7 +163,10 @@ export default function AloChatScreen({
               clearTimeout(typingTimeoutRef.current);
               typingTimeoutRef.current = null;
             }
+            setIsTyping(false);
           } else if (data.type === 'end') {
+            setIsTyping(false);
+
             // Müşteri temsilcisi mesajı sonlandı (Müşteri temsilcisi mesajı sonlandı)
             //Burada bir şey yapılmayacak şu anda
             setChatEnded(true);
