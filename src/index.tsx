@@ -20,6 +20,8 @@ type AloChatScreenProps = {
   security_token: string;
   customHeader?: React.ReactNode;
   onClose?: () => void;
+  initialChatToken?: string;
+  initialChatKey?: string;
 };
 
 export interface MessageType {
@@ -42,6 +44,8 @@ export default function AloChatScreen({
   security_token,
   customHeader,
   onClose,
+  initialChatToken,
+  initialChatKey,
 }: AloChatScreenProps) {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
@@ -56,19 +60,21 @@ export default function AloChatScreen({
 
   const initializeChat = useCallback(async () => {
     try {
-      const response = await axios.post(
-        'https://chatserver.alo-tech.com/chat-api/new',
-        {
-          client_email: clientEmail,
-          client_name: clientName,
-          cwid: cwid,
-          namespace: namespace,
-          phone_number: phone_number,
-          security_token: security_token,
-        }
-      );
-
-      if (response.data.success) {
+      if (initialChatToken && initialChatKey) {
+        setChatToken(initialChatToken);
+        setActiveChatKey(initialChatKey);
+      } else {
+        const response = await axios.post(
+          'https://chatserver.alo-tech.com/chat-api/new',
+          {
+            client_email: clientEmail,
+            client_name: clientName,
+            cwid: cwid,
+            namespace: namespace,
+            phone_number: phone_number,
+            security_token: security_token,
+          }
+        );
         setChatToken(response.data.token);
         setActiveChatKey(response.data.active_chat_key);
       }
@@ -85,7 +91,16 @@ export default function AloChatScreen({
     } finally {
       setLoading(false);
     }
-  }, [clientEmail, clientName, cwid, namespace, phone_number, security_token]);
+  }, [
+    clientEmail,
+    clientName,
+    cwid,
+    namespace,
+    phone_number,
+    security_token,
+    initialChatToken,
+    initialChatKey,
+  ]);
 
   const connectWebSocket = useCallback(() => {
     try {
@@ -123,7 +138,11 @@ export default function AloChatScreen({
             typingTimeoutRef.current = setTimeout(() => {
               setIsTyping(false);
             }, 3000);
-          } else if (data.type === 'text' && data.text.length > 0) {
+          } else if (
+            data.type === 'text' &&
+            data.type !== 'system' &&
+            data.text.length > 0
+          ) {
             //TODO: Müşteri temsilcisi mesaj gönderdi
             handleNewMessageFormat(data);
             // When message is received, typing is done
@@ -246,6 +265,10 @@ export default function AloChatScreen({
           message_body: msgText,
         }
       );
+
+      console.log({
+        data: response.data,
+      });
 
       if (response.data.success) {
         // Update message status to sent

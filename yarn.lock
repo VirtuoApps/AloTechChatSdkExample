@@ -2809,7 +2809,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lepuz/alo-chat-sdk@^1.0.0, @lepuz/alo-chat-sdk@workspace:.":
+"@lepuz/alo-chat-sdk@workspace:.":
   version: 0.0.0-use.local
   resolution: "@lepuz/alo-chat-sdk@workspace:."
   dependencies:
@@ -4118,7 +4118,6 @@ __metadata:
   dependencies:
     "@babel/core": ^7.20.0
     "@expo/metro-runtime": ~4.0.1
-    "@lepuz/alo-chat-sdk": ^1.0.0
     expo: ~52.0.43
     expo-status-bar: ~2.0.1
     react: 18.3.1
