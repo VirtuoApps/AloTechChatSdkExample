@@ -154,4 +154,13 @@ export const styles = StyleSheet.create({
     backgroundColor: '#E5E5E5',
     color: '#999',
   },
+  messageSenderName: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#555',
+    marginBottom: 4,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
 });
