@@ -22,6 +22,7 @@ type AloChatScreenProps = {
   onClose?: () => void;
   initialChatToken?: string;
   initialChatKey?: string;
+  onChatStarted?: (activeChatKey: string, chatToken: string) => void;
 };
 
 export interface MessageType {
@@ -33,6 +34,7 @@ export interface MessageType {
   timestamp?: string;
   sender_name?: string;
   avatar?: string;
+  onChatStarted?: (activeChatKey: string, chatToken: string) => void;
 }
 
 export default function AloChatScreen({
@@ -46,6 +48,7 @@ export default function AloChatScreen({
   onClose,
   initialChatToken,
   initialChatKey,
+  onChatStarted,
 }: AloChatScreenProps) {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
@@ -53,7 +56,7 @@ export default function AloChatScreen({
   const [chatEnded, setChatEnded] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  // const [isTyping, setIsTyping] = useState(false);
   const scrollViewRef = React.useRef<ScrollView>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -91,6 +94,7 @@ export default function AloChatScreen({
         );
         setChatToken(response.data.token);
         setActiveChatKey(response.data.active_chat_key);
+        onChatStarted?.(response.data.active_chat_key, response.data.token);
       }
     } catch (error) {
       console.error('Chat initialization failed:', error);
@@ -114,6 +118,7 @@ export default function AloChatScreen({
     security_token,
     initialChatToken,
     initialChatKey,
+    onChatStarted,
   ]);
 
   const connectWebSocket = useCallback(() => {
@@ -137,13 +142,11 @@ export default function AloChatScreen({
             //Burada bir şey yapılmayacak şu anda
           } else if (data.type === 'typing') {
             // Müşteri temsilcisi mesajı yazıyor (Müşteri temsilcisi mesajı yazıyor)
-            setIsTyping(true);
-
+            // setIsTyping(true);
             // Clear existing timeout if there is one
             // if (typingTimeoutRef.current) {
             //   clearTimeout(typingTimeoutRef.current);
             // }
-
             // // Set new timeout to reset typing status after 3 seconds
             // typingTimeoutRef.current = setTimeout(() => {
             //   setIsTyping(false);
@@ -156,16 +159,16 @@ export default function AloChatScreen({
             //Müşteri temsilcisi mesaj gönderdi
             handleNewMessageFormat(data);
             // When message is received, typing is done
-            setIsTyping(false);
+            // setIsTyping(false);
 
             // Clear typing timeout if it exists
             if (typingTimeoutRef.current) {
               clearTimeout(typingTimeoutRef.current);
               typingTimeoutRef.current = null;
             }
-            setIsTyping(false);
+            // setIsTyping(false);
           } else if (data.type === 'end') {
-            setIsTyping(false);
+            // setIsTyping(false);
 
             // Müşteri temsilcisi mesajı sonlandı (Müşteri temsilcisi mesajı sonlandı)
             //Burada bir şey yapılmayacak şu anda
@@ -462,11 +465,11 @@ export default function AloChatScreen({
         })}
 
         {/* Typing indicator */}
-        {isTyping && (
+        {/* {isTyping && (
           <View style={styles.supportMessageContainer}>
             <Text style={styles.supportMessage}>Yazıyor...</Text>
           </View>
-        )}
+        )} */}
       </ScrollView>
 
       {/* Message input */}
