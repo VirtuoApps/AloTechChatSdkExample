@@ -1,6 +1,6 @@
 {
   "name": "@lepuz/alo-chat-sdk",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Alo Chat Sdk",
   "source": "./src/index.tsx",
   "main": "./lib/module/index.js",

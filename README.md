@@ -12,11 +12,7 @@ npm install @lepuz/alotech-chat-sdk
 yarn add @lepuz/alotech-chat-sdk
 ```
 
-**Peer Dependencies:** Make sure you have the following libraries installed in your project (if not, install them as well):
-- `axios` – used for performing HTTP requests (e.g., to fetch chat tokens or send messages through REST if needed).
-- WebSocket support – React Native has a built-in WebSocket API. If your environment requires it, you can use a library like `react-native-websocket` for more advanced WebSocket support.
-
-After installing the package (and any peer dependencies), if you're on iOS, navigate to the ios directory and run `pod install` to link native dependencies:
+After installing the package, if you're on iOS, navigate to the ios directory and run `pod install` to link native dependencies:
 
 ```sh
 cd ios && pod install
