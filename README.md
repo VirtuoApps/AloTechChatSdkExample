@@ -7,9 +7,9 @@ AloTech Chat SDK for React Native is a plug-and-play live chat component that co
 Install the package via npm or yarn:
 
 ```sh
-npm install alotech-chat-sdk
+npm install @lepuz/alotech-chat-sdk
 # or, using Yarn:
-yarn add alotech-chat-sdk
+yarn add @lepuz/alotech-chat-sdk
 ```
 
 **Peer Dependencies:** Make sure you have the following libraries installed in your project (if not, install them as well):
