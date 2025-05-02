@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { TouchableOpacity, View, Text, Alert } from 'react-native';
 import CloseIcon from '../../example/src/CloseIcon';
 import { styles } from '../styles';
@@ -12,6 +12,7 @@ type HeaderProps = {
   setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
   loading: boolean;
   onClose?: () => void;
+  chatRef?: React.RefObject<any>;
 };
 
 export default function Header({
@@ -21,6 +22,7 @@ export default function Header({
   setMessages,
   loading,
   onClose,
+  chatRef,
 }: HeaderProps) {
   const handleClosePress = () => {
     if (chatEnded) return;
@@ -41,7 +43,7 @@ export default function Header({
     );
   };
 
-  const endChat = async () => {
+  const endChat = useCallback(async () => {
     try {
       setChatEnded(true);
       await axios.post('https://chatserver.alo-tech.com/chat-api/end', {
@@ -64,7 +66,17 @@ export default function Header({
         'Görüşme sonlandırılırken bir hata oluştu, lütfen tekrar deneyin.'
       );
     }
-  };
+  }, [chatToken, setChatEnded, setMessages, onClose]);
+
+  useEffect(() => {
+    if (chatRef?.current) {
+      chatRef.current.endChat = endChat;
+    }
+  }, [chatRef, endChat]);
+
+  const getSubtitleStyle = useCallback(() => {
+    return [styles.headerSubtitle, { color: chatEnded ? 'red' : 'green' }];
+  }, [chatEnded]);
 
   return (
     <View style={styles.header}>
@@ -74,12 +86,7 @@ export default function Header({
         </View>
         <View>
           <Text style={styles.headerTitle}>Canlı Destek</Text>
-          <Text
-            style={{
-              ...styles.headerSubtitle,
-              color: chatEnded ? 'red' : 'green',
-            }}
-          >
+          <Text style={getSubtitleStyle()}>
             {loading ? 'Bağlanıyor...' : chatEnded ? 'Çevrimdışı' : 'Çevrimiçi'}
           </Text>
         </View>

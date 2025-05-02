@@ -11,6 +11,16 @@ import { styles } from './styles';
 import Header from './Header/Header';
 import InputBox from './InputBox/InputBox';
 
+export type ChatRefType = {
+  endChat: () => void;
+  messages: MessageType[];
+  setMessages: (messages: MessageType[]) => void;
+  chatEnded: boolean;
+  setChatEnded: (chatEnded: boolean) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+};
+
 type AloChatScreenProps = {
   clientEmail: string;
   clientName: string;
@@ -23,6 +33,7 @@ type AloChatScreenProps = {
   initialChatToken?: string;
   initialChatKey?: string;
   onChatStarted?: (activeChatKey: string, chatToken: string) => void;
+  chatRef?: React.RefObject<ChatRefType>;
 };
 
 export interface MessageType {
@@ -49,6 +60,7 @@ export default function AloChatScreen({
   initialChatToken,
   initialChatKey,
   onChatStarted,
+  chatRef,
 }: AloChatScreenProps) {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
@@ -61,6 +73,34 @@ export default function AloChatScreen({
   const socketRef = useRef<WebSocket | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Additional function to scroll to bottom that can be called manually
+  const scrollToBottom = useCallback(() => {
+    if (scrollViewRef.current) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (chatRef?.current) {
+      chatRef.current.messages = messages;
+      chatRef.current.setMessages = setMessages;
+      chatRef.current.chatEnded = chatEnded;
+      chatRef.current.setChatEnded = setChatEnded;
+      chatRef.current.loading = loading;
+      chatRef.current.setLoading = setLoading;
+    }
+  }, [
+    messages,
+    setMessages,
+    chatEnded,
+    setChatEnded,
+    loading,
+    setLoading,
+    chatRef,
+  ]);
+
   const initializeChat = useCallback(async () => {
     try {
       if (initialChatToken && initialChatKey) {
@@ -68,7 +108,6 @@ export default function AloChatScreen({
           'https://chatserver.alo-tech.com/chat-api/get_message',
           {
             token: initialChatToken,
-            active_chat_key: initialChatKey,
           }
         );
 
@@ -77,6 +116,50 @@ export default function AloChatScreen({
           initialChatToken,
           initialChatKey,
         });
+
+        // Process messages if they exist in the response
+        if (res.data && Array.isArray(res.data)) {
+          // Process each message using the same logic as socket.onmessage
+          const processedMessages: MessageType[] = [];
+
+          for (const data of res.data) {
+            // Skip setting/queued and other non-text messages
+            if (
+              data.type === 'text' &&
+              data.type !== 'system' &&
+              data.text &&
+              data.text.length > 0
+            ) {
+              const isSupportMessage = data.sender !== 'client';
+
+              const formattedTimestamp =
+                data.insert_date &&
+                data.insert_date.date &&
+                data.insert_date.time
+                  ? `${data.insert_date.date} ${data.insert_date.time}`
+                  : new Date().toISOString();
+
+              processedMessages.push({
+                id: processedMessages.length + 1,
+                from: isSupportMessage ? 'support' : 'user',
+                message: data.text || '',
+                status: 'sent',
+                timestamp: formattedTimestamp,
+                sender_name: isSupportMessage
+                  ? data.name || data.nickname || 'Support'
+                  : 'You',
+                avatar: data.avatar || undefined,
+                msg_id: data.msg_id,
+              });
+            }
+          }
+
+          console.log({
+            processedMessages,
+          });
+
+          setMessages(processedMessages);
+        }
 
         setChatToken(initialChatToken);
         setActiveChatKey(initialChatKey);
@@ -202,7 +285,10 @@ export default function AloChatScreen({
   }, [activeChatKey, chatToken, chatEnded]);
 
   useEffect(() => {
-    initializeChat();
+    initializeChat().then(() => {
+      // Scroll to bottom after chat is initialized and messages are loaded
+      scrollToBottom();
+    });
 
     return () => {
       // Clean up WebSocket connection when component unmounts
@@ -214,7 +300,7 @@ export default function AloChatScreen({
         clearTimeout(typingTimeoutRef.current);
       }
     };
-  }, [initializeChat]);
+  }, [initializeChat, scrollToBottom]);
 
   // Connect to WebSocket when we have token and activeChatKey
   useEffect(() => {
@@ -225,20 +311,20 @@ export default function AloChatScreen({
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
-    if (scrollViewRef.current) {
+    if (scrollViewRef.current && messages.length > 0) {
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      }, 300); // Increased timeout to ensure render completes
     }
   }, [messages]);
 
   const handleNewMessageFormat = (data: any) => {
-    // Handle _NewMessage format with sender, date, time, text, etc.
+    // Handle message format with sender, date, time, text, etc.
     const isSupportMessage = data.sender !== 'client';
 
     const formattedTimestamp =
-      data.date && data.time
-        ? `${data.date} ${data.time}`
+      data.insert_date && data.insert_date.date && data.insert_date.time
+        ? `${data.insert_date.date} ${data.insert_date.time}`
         : new Date().toISOString();
 
     setMessages((currentMessages) => [
@@ -253,6 +339,7 @@ export default function AloChatScreen({
           ? data.name || data.nickname || 'Support'
           : 'You',
         avatar: data.avatar || undefined,
+        msg_id: data.msg_id,
       },
     ]);
   };
@@ -398,6 +485,7 @@ export default function AloChatScreen({
           setMessages={setMessages}
           loading={loading}
           onClose={onClose}
+          chatRef={chatRef}
         />
       )}
 
