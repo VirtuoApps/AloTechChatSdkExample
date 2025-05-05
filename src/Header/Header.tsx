@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { TouchableOpacity, View, Text, Alert } from 'react-native';
-import CloseIcon from '../../example/src/CloseIcon';
+import CloseIcon from '../CloseIcon';
 import { styles } from '../styles';
 import type { MessageType } from 'alo-chat-sdk';
 import axios from 'axios';
