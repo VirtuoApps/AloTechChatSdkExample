@@ -4118,6 +4118,7 @@ __metadata:
   dependencies:
     "@babel/core": ^7.20.0
     "@expo/metro-runtime": ~4.0.1
+    alo-chat-sdk: "file:../"
     expo: ~52.0.43
     expo-status-bar: ~2.0.1
     react: 18.3.1
@@ -4127,6 +4128,19 @@ __metadata:
     react-native-web: ~0.19.13
   languageName: unknown
   linkType: soft
+
+"alo-chat-sdk@file:../::locator=alo-chat-sdk-example%40workspace%3Aexample":
+  version: 1.0.7
+  resolution: "alo-chat-sdk@file:../#../::hash=a5c8af&locator=alo-chat-sdk-example%40workspace%3Aexample"
+  dependencies:
+    axios: ^1.8.4
+    socket.io-client: ^4.8.1
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 86ea1b46f22b8477bb9681fe83d8017d24c21f04ef110d19858356fc92b4e655cdc3e5387ff3520839e6bf6a228f3c06dd539ddb0ce41c17ce4dbb2a09c7d45b
+  languageName: node
+  linkType: hard
 
 "anser@npm:^1.4.9":
   version: 1.4.10

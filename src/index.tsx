@@ -34,6 +34,7 @@ type AloChatScreenProps = {
   initialChatKey?: string;
   onChatStarted?: (activeChatKey: string, chatToken: string) => void;
   chatRef?: React.RefObject<ChatRefType>;
+  onContinueLater?: () => void;
 };
 
 export interface MessageType {
@@ -61,6 +62,7 @@ export default function AloChatScreen({
   initialChatKey,
   onChatStarted,
   chatRef,
+  onContinueLater,
 }: AloChatScreenProps) {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
@@ -486,6 +488,7 @@ export default function AloChatScreen({
           loading={loading}
           onClose={onClose}
           chatRef={chatRef}
+          onContinueLater={onContinueLater}
         />
       )}
 
