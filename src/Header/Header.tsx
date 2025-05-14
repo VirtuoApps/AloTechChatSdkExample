@@ -7,7 +7,6 @@ import {
   Modal,
   StyleSheet,
   Image,
-  Switch,
 } from 'react-native';
 import CloseIcon from '../CloseIcon';
 import { useTheme } from '../theme/ThemeContext';
@@ -38,7 +37,7 @@ export default function Header({
   onContinueLater,
 }: HeaderProps) {
   const [showPopup, setShowPopup] = useState(false);
-  const { theme, isDark, toggleTheme } = useTheme();
+  const { theme, isDark } = useTheme();
   const styles = createStyles(theme);
   const popupStyles = createPopupStyles(theme);
 
@@ -208,34 +207,3 @@ export default function Header({
     </View>
   );
 }
-
-const popupStyles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  option: {
-    width: '100%',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    alignItems: 'center',
-  },
-  optionText: {
-    fontSize: 16,
-  },
-});
