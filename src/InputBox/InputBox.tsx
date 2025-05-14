@@ -2,7 +2,8 @@ import React from 'react';
 import { Image, Platform, TouchableOpacity, View } from 'react-native';
 import { TextInput } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
-import { styles } from '../styles';
+import { useTheme } from '../theme/ThemeContext';
+import { createStyles } from '../styles';
 
 type InputBoxProps = {
   chatEnded: boolean;
@@ -19,6 +20,18 @@ export default function InputBox({
   setInputMessage,
   sendMessage,
 }: InputBoxProps) {
+  const { theme, isDark } = useTheme();
+  const styles = createStyles(theme);
+
+  let extraStyles: any = {};
+
+  if (isDark) {
+    extraStyles = {
+      borderWidth: 1,
+      borderColor: '#343A40',
+    };
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -34,11 +47,13 @@ export default function InputBox({
         }}
       >
         <TextInput
-          style={[styles.input, chatEnded && styles.disabledInput]}
+          style={[styles.input, chatEnded && styles.disabledInput, extraStyles]}
           placeholder={
             chatEnded ? 'Görüşme sonlandırılmıştır' : 'Mesajınızı yazın...'
           }
-          placeholderTextColor={chatEnded ? '#999' : '#999'}
+          placeholderTextColor={
+            chatEnded ? theme.disabledText : theme.textSecondary
+          }
           value={inputMessage}
           onChangeText={setInputMessage}
           editable={!loading && !chatEnded}
@@ -57,6 +72,7 @@ export default function InputBox({
             style={{
               width: 20,
               height: 20,
+              tintColor: theme.userMessageText,
             }}
           />
         </TouchableOpacity>

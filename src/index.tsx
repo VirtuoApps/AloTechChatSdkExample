@@ -7,9 +7,10 @@ import {
   ScrollView,
 } from 'react-native';
 import axios from 'axios';
-import { styles } from './styles';
+import { createStyles } from './styles';
 import Header from './Header/Header';
 import InputBox from './InputBox/InputBox';
+import { ThemeProvider, useTheme } from './theme/ThemeContext';
 
 export type ChatRefType = {
   endChat: () => void;
@@ -50,7 +51,7 @@ export interface MessageType {
   avatar?: string;
 }
 
-export default function AloChatScreen({
+const AloChatContent = ({
   clientEmail,
   clientName,
   cwid,
@@ -66,7 +67,7 @@ export default function AloChatScreen({
   onContinueLater,
   memberId,
   transaction,
-}: AloChatScreenProps) {
+}: AloChatScreenProps) => {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
   const [activeChatKey, setActiveChatKey] = useState('');
@@ -77,6 +78,8 @@ export default function AloChatScreen({
   const scrollViewRef = React.useRef<ScrollView>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { theme } = useTheme();
+  const styles = createStyles(theme);
 
   console.log({
     activeChatKey,
@@ -583,5 +586,13 @@ export default function AloChatScreen({
         sendMessage={sendMessage}
       />
     </SafeAreaView>
+  );
+};
+
+export default function AloChatScreen(props: AloChatScreenProps) {
+  return (
+    <ThemeProvider>
+      <AloChatContent {...props} />
+    </ThemeProvider>
   );
 }

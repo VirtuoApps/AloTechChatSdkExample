@@ -7,9 +7,12 @@ import {
   Modal,
   StyleSheet,
   Image,
+  Switch,
 } from 'react-native';
 import CloseIcon from '../CloseIcon';
-import { styles } from '../styles';
+import { useTheme } from '../theme/ThemeContext';
+import { createStyles } from '../styles';
+import { createPopupStyles } from '../theme/styles';
 import type { MessageType } from 'alo-chat-sdk';
 import axios from 'axios';
 
@@ -35,6 +38,9 @@ export default function Header({
   onContinueLater,
 }: HeaderProps) {
   const [showPopup, setShowPopup] = useState(false);
+  const { theme, isDark, toggleTheme } = useTheme();
+  const styles = createStyles(theme);
+  const popupStyles = createPopupStyles(theme);
 
   const handleClosePress = () => {
     if (chatEnded) return;
@@ -99,13 +105,23 @@ export default function Header({
     <View style={styles.header}>
       <View style={styles.headerContent}>
         <View style={styles.profileIcon}>
-          <Image
-            source={require('../Support.png')}
-            style={{
-              width: 30,
-              height: 30,
-            }}
-          />
+          {!isDark ? (
+            <Image
+              source={require('../Support.png')}
+              style={{
+                width: 30,
+                height: 30,
+              }}
+            />
+          ) : (
+            <Image
+              source={require('../SupportWhite.png')}
+              style={{
+                width: 30,
+                height: 30,
+              }}
+            />
+          )}
         </View>
         <View>
           <Text style={styles.headerTitle}>Canlı Destek</Text>
@@ -132,7 +148,7 @@ export default function Header({
             ></View>
             <Text
               style={{
-                color: '#333',
+                color: theme.text,
                 fontSize: 12,
               }}
             >
@@ -145,9 +161,18 @@ export default function Header({
           </View>
         </View>
       </View>
-      <TouchableOpacity onPress={handleClosePress}>
-        <CloseIcon />
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {/* <Switch
+          value={isDark}
+          onValueChange={toggleTheme}
+          trackColor={{ false: '#767577', true: '#4285F4' }}
+          thumbColor={isDark ? '#f5dd4b' : '#f4f3f4'}
+          style={{ marginRight: 10 }}
+        /> */}
+        <TouchableOpacity onPress={handleClosePress}>
+          <CloseIcon color={theme.text} />
+        </TouchableOpacity>
+      </View>
 
       <Modal
         visible={showPopup}
