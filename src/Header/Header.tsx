@@ -5,7 +5,6 @@ import {
   Text,
   Alert,
   Modal,
-  StyleSheet,
   Image,
 } from 'react-native';
 import CloseIcon from '../CloseIcon';
