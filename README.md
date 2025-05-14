@@ -65,6 +65,11 @@ export default App;
 | `initialChatKey`   | `string`                       | No       | Resume key for an existing chat.                                                      |
 | `onChatStarted`    | `(info: ChatInfo) ⇒ void`      | No       | Fired after a fresh chat is created.                                                  |
 | `onContinueLater`  | `( ) ⇒ void`                   | No       | **New.** Fired when the user chooses to continue the chat later instead of ending it. |
+| `memberId`         | `string`                       | No       | Optional custom user metadata (e.g., user/member ID for analytics or CRM systems).    |
+| `transaction`         | `string`                       | No    | Optional transaction/session identifier to track user context or origin.              |
+
+
+
 
 ### Chat Ref API
 
