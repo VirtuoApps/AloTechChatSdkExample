@@ -6,6 +6,7 @@ import {
   Alert,
   Modal,
   StyleSheet,
+  Image,
 } from 'react-native';
 import CloseIcon from '../CloseIcon';
 import { styles } from '../styles';
@@ -94,21 +95,54 @@ export default function Header({
     }
   }, [chatRef, endChat]);
 
-  const getSubtitleStyle = useCallback(() => {
-    return [styles.headerSubtitle, { color: chatEnded ? 'red' : 'green' }];
-  }, [chatEnded]);
-
   return (
     <View style={styles.header}>
       <View style={styles.headerContent}>
         <View style={styles.profileIcon}>
-          <Text style={styles.profileIconText}>CD</Text>
+          <Image
+            source={require('../Support.png')}
+            style={{
+              width: 30,
+              height: 30,
+            }}
+          />
         </View>
         <View>
           <Text style={styles.headerTitle}>Canlı Destek</Text>
-          <Text style={getSubtitleStyle()}>
-            {loading ? 'Bağlanıyor...' : chatEnded ? 'Çevrimdışı' : 'Çevrimiçi'}
-          </Text>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 4,
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: loading
+                  ? '#FFB900'
+                  : chatEnded
+                    ? '#ADB5BD'
+                    : '#37B24D',
+                width: 8,
+                height: 8,
+                borderRadius: 100,
+                marginRight: 5,
+              }}
+            ></View>
+            <Text
+              style={{
+                color: '#333',
+                fontSize: 12,
+              }}
+            >
+              {loading
+                ? 'Bağlanıyor...'
+                : chatEnded
+                  ? 'Çevrimdışı'
+                  : 'Çevrimiçi'}
+            </Text>
+          </View>
         </View>
       </View>
       <TouchableOpacity onPress={handleClosePress}>

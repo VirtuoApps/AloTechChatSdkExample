@@ -18,6 +18,8 @@ export default function App() {
       security_token="bb0d744673c8fdfbd6e3397da9560212c517308fb3338f3a9edc075fba875181"
       chatRef={chatRef}
       onContinueLater={handleContinueLater}
+      memberId="1234567890"
+      transaction="1234567890"
     />
   );
 }

@@ -35,6 +35,8 @@ type AloChatScreenProps = {
   onChatStarted?: (activeChatKey: string, chatToken: string) => void;
   chatRef?: React.RefObject<ChatRefType>;
   onContinueLater?: () => void;
+  memberId?: string;
+  transaction?: string;
 };
 
 export interface MessageType {
@@ -46,7 +48,6 @@ export interface MessageType {
   timestamp?: string;
   sender_name?: string;
   avatar?: string;
-  onChatStarted?: (activeChatKey: string, chatToken: string) => void;
 }
 
 export default function AloChatScreen({
@@ -63,6 +64,8 @@ export default function AloChatScreen({
   onChatStarted,
   chatRef,
   onContinueLater,
+  memberId,
+  transaction,
 }: AloChatScreenProps) {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
@@ -74,6 +77,11 @@ export default function AloChatScreen({
   const scrollViewRef = React.useRef<ScrollView>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  console.log({
+    activeChatKey,
+    chatToken,
+  });
 
   // Additional function to scroll to bottom that can be called manually
   const scrollToBottom = useCallback(() => {
@@ -106,31 +114,44 @@ export default function AloChatScreen({
   const initializeChat = useCallback(async () => {
     try {
       if (initialChatToken && initialChatKey) {
-        const res = await axios.post(
-          'https://chatserver.alo-tech.com/chat-api/get_message',
+        const tokenRes = await axios.post(
+          'https://api.alo-tech.com/application/access_token/',
           {
-            token: initialChatToken,
+            client_id: 'deae0fdc12ccfa63f94dd19f66bfcb10',
+            client_secret:
+              'be4c9e5959ec2e27c3229f527015d0f07e353294384308e75e0e166ca64d54f6',
+          },
+          {
+            headers: {
+              tenant: 'appic.alo-tech.com',
+            },
           }
         );
 
-        console.log({
-          data: res.data,
-          initialChatToken,
-          initialChatKey,
-        });
+        const chatHistoryRes = await axios.get(
+          `https://api.alo-tech.com/v3/chats/${initialChatKey}/history`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenRes.data.access_token}`,
+              Tenant: 'appic.alo-tech.com',
+            },
+          }
+        );
+
+        const chatHistory = chatHistoryRes.data.chat_history;
 
         // Process messages if they exist in the response
-        if (res.data && Array.isArray(res.data)) {
+        if (chatHistory && Array.isArray(chatHistory)) {
           // Process each message using the same logic as socket.onmessage
           const processedMessages: MessageType[] = [];
 
-          for (const data of res.data) {
+          for (const data of chatHistory) {
             // Skip setting/queued and other non-text messages
             if (
               data.type === 'text' &&
               data.type !== 'system' &&
-              data.text &&
-              data.text.length > 0
+              data.message &&
+              data.message.length > 0
             ) {
               const isSupportMessage = data.sender !== 'client';
 
@@ -144,7 +165,7 @@ export default function AloChatScreen({
               processedMessages.push({
                 id: processedMessages.length + 1,
                 from: isSupportMessage ? 'support' : 'user',
-                message: data.text || '',
+                message: data.message || '',
                 status: 'sent',
                 timestamp: formattedTimestamp,
                 sender_name: isSupportMessage
@@ -155,10 +176,6 @@ export default function AloChatScreen({
               });
             }
           }
-
-          console.log({
-            processedMessages,
-          });
 
           setMessages(processedMessages);
         }
@@ -175,6 +192,10 @@ export default function AloChatScreen({
             namespace: namespace,
             phone_number: phone_number,
             security_token: security_token,
+            client_custom_data: JSON.stringify({
+              member_id: memberId,
+              transaction: transaction,
+            }),
           }
         );
         setChatToken(response.data.token);
@@ -204,6 +225,8 @@ export default function AloChatScreen({
     initialChatToken,
     initialChatKey,
     onChatStarted,
+    memberId,
+    transaction,
   ]);
 
   const connectWebSocket = useCallback(() => {
@@ -502,32 +525,20 @@ export default function AloChatScreen({
           if (message.from === 'support') {
             return (
               <View key={message.id} style={styles.supportMessageContainer}>
-                {message.sender_name && (
-                  <Text style={styles.messageSenderName}>
-                    {message.sender_name}
-                  </Text>
-                )}
                 <Text style={styles.supportMessage}>{message.message}</Text>
               </View>
             );
           }
 
-          const isLastMessage =
-            message.id === Math.max(...messages.map((m) => m.id));
+          // const isLastMessage =
+          //   message.id === Math.max(...messages.map((m) => m.id));
 
           return (
             <View key={message.id} style={styles.userMessageContainer}>
               <Text style={styles.userMessage}>{message.message}</Text>
 
               {message.status &&
-                (message.status === 'sent' ? (
-                  // Only show "Gönderildi" for the last message with 'sent' status
-                  isLastMessage ? (
-                    <View style={styles.messageStatusContainer}>
-                      <Text style={styles.messageStatusText}>Gönderildi</Text>
-                    </View>
-                  ) : null
-                ) : (
+                (message.status === 'sent' ? null : ( // ) : null //   </View> //     <Text style={styles.messageStatusText}>Gönderildi</Text> //   <View style={styles.messageStatusContainer}> // isLastMessage ? ( // Only show "Gönderildi" for the last message with 'sent' status
                   // Always show status for 'sending' or 'failed' messages
                   <View style={styles.messageStatusContainer}>
                     <Text

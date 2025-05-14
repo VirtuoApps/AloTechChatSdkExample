@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, TouchableOpacity, View } from 'react-native';
 import { TextInput } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
 import { styles } from '../styles';
@@ -46,12 +46,19 @@ export default function InputBox({
         <TouchableOpacity
           style={[
             styles.sendButton,
-            (loading || chatEnded) && styles.disabledButton,
+            (loading || chatEnded || inputMessage.length === 0) &&
+              styles.disabledButton,
           ]}
           onPress={sendMessage}
-          disabled={loading || chatEnded}
+          disabled={loading || chatEnded || inputMessage.length === 0}
         >
-          <Text style={styles.sendButtonText}>Gönder</Text>
+          <Image
+            source={require('../DirectionArrow.png')}
+            style={{
+              width: 20,
+              height: 20,
+            }}
+          />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

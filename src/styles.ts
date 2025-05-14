@@ -23,7 +23,6 @@ export const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#E1E1E1',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -56,8 +55,7 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   supportMessage: {
-    backgroundColor: '#eee',
-
+    backgroundColor: '#F8F9FA',
     padding: 12,
     borderRadius: 18,
     borderBottomLeftRadius: 5,
@@ -85,7 +83,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   userMessage: {
-    backgroundColor: '#1877F2',
+    backgroundColor: '#1E64FF',
     color: 'white',
     padding: 12,
     borderRadius: 18,
@@ -111,14 +109,18 @@ export const styles = StyleSheet.create({
     fontSize: 14,
   },
   sendButton: {
-    backgroundColor: '#1877F2',
-    borderRadius: 20,
+    backgroundColor: '#1E64FF',
+    width: 40,
+    height: 40,
+    borderRadius: 100,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 15,
     paddingVertical: 10,
-    justifyContent: 'center',
   },
   disabledButton: {
-    backgroundColor: '#B0C4DE',
+    backgroundColor: '#ADB5BD',
   },
   sendButtonText: {
     color: 'white',
