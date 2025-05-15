@@ -53,7 +53,7 @@ export const createStyles = (theme: ThemeColors) =>
       backgroundColor: theme.background,
     },
     supportMessageContainer: {
-      marginBottom: 20,
+      marginBottom: 10,
       alignItems: 'flex-start',
     },
     supportMessage: {
@@ -64,7 +64,9 @@ export const createStyles = (theme: ThemeColors) =>
       maxWidth: '80%',
       color: theme.supportMessageText,
       fontSize: 14,
-      marginBottom: 8,
+    },
+    supportMessageText: {
+      color: theme.supportMessageText,
     },
     messageStatus: {
       flexDirection: 'row',
@@ -92,6 +94,10 @@ export const createStyles = (theme: ThemeColors) =>
       borderBottomRightRadius: 5,
       maxWidth: '80%',
       fontSize: 14,
+    },
+    userMessageText: {
+      fontSize: 14,
+      color: theme.userMessageText,
     },
     inputContainer: {
       flexDirection: 'row',

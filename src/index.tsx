@@ -84,6 +84,7 @@ const AloChatContent = ({
   console.log({
     activeChatKey,
     chatToken,
+    messages,
   });
 
   // Additional function to scroll to bottom that can be called manually
@@ -528,7 +529,11 @@ const AloChatContent = ({
           if (message.from === 'support') {
             return (
               <View key={message.id} style={styles.supportMessageContainer}>
-                <Text style={styles.supportMessage}>{message.message}</Text>
+                <View style={styles.supportMessage}>
+                  <Text style={styles.supportMessageText}>
+                    {message.message}
+                  </Text>
+                </View>
               </View>
             );
           }
@@ -538,7 +543,9 @@ const AloChatContent = ({
 
           return (
             <View key={message.id} style={styles.userMessageContainer}>
-              <Text style={styles.userMessage}>{message.message}</Text>
+              <View style={styles.userMessage}>
+                <Text style={styles.userMessageText}>{message.message}</Text>
+              </View>
 
               {message.status &&
                 (message.status === 'sent' ? null : ( // ) : null //   </View> //     <Text style={styles.messageStatusText}>Gönderildi</Text> //   <View style={styles.messageStatusContainer}> // isLastMessage ? ( // Only show "Gönderildi" for the last message with 'sent' status
