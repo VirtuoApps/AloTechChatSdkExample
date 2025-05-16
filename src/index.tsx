@@ -38,6 +38,7 @@ type AloChatScreenProps = {
   onContinueLater?: () => void;
   memberId?: string;
   transaction?: string;
+  theme?: 'light' | 'dark';
 };
 
 export interface MessageType {
@@ -598,7 +599,7 @@ const AloChatContent = ({
 
 export default function AloChatScreen(props: AloChatScreenProps) {
   return (
-    <ThemeProvider>
+    <ThemeProvider initialTheme={props.theme}>
       <AloChatContent {...props} />
     </ThemeProvider>
   );

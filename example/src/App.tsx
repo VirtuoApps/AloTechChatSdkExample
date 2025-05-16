@@ -20,6 +20,7 @@ export default function App() {
       onContinueLater={handleContinueLater}
       memberId="1234567890"
       transaction="1234567890"
+      theme="dark"
     />
   );
 }
