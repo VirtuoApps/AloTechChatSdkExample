@@ -21,6 +21,12 @@ export default function App() {
       memberId="1234567890"
       transaction="1234567890"
       initialTheme="dark"
+      client_custom_data={{
+        user_id: '1234567890',
+        user_name: 'Test User',
+        user_email: 'test@test.com',
+        user_phone: '5398292553',
+      }}
     />
   );
 }

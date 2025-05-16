@@ -60,6 +60,7 @@ type AloChatScreenProps = {
   memberId?: string;
   transaction?: string;
   initialTheme?: 'light' | 'dark';
+  client_custom_data?: any;
 };
 
 export interface MessageType {
@@ -90,6 +91,7 @@ const AloChatContent = ({
   memberId,
   transaction,
   initialTheme,
+  client_custom_data,
 }: AloChatScreenProps) => {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
@@ -229,10 +231,7 @@ const AloChatContent = ({
             namespace: namespace,
             phone_number: phone_number,
             security_token: security_token,
-            client_custom_data: JSON.stringify({
-              member_id: memberId,
-              transaction: transaction,
-            }),
+            client_custom_data: JSON.stringify(client_custom_data),
           }
         );
         setChatToken(response.data.token);
