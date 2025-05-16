@@ -10,7 +10,7 @@ import {
 import CloseIcon from '../CloseIcon';
 import { createStyles } from '../styles';
 import { createPopupStyles } from '../theme/styles';
-import { useTheme, type MessageType } from 'alo-chat-sdk';
+import { useTheme, type MessageType } from '../index';
 import axios from 'axios';
 
 type HeaderProps = {

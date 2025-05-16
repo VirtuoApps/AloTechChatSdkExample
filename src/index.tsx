@@ -114,6 +114,12 @@ const AloChatContent = ({
     setIsDark(!isDark);
   };
 
+  useEffect(() => {
+    if (initialTheme) {
+      setIsDark(initialTheme === 'dark');
+    }
+  }, [initialTheme]);
+
   // Additional function to scroll to bottom that can be called manually
   const scrollToBottom = useCallback(() => {
     if (scrollViewRef.current) {
@@ -424,10 +430,6 @@ const AloChatContent = ({
           message_body: msgText,
         }
       );
-
-      console.log({
-        data: response.data,
-      });
 
       if (response.data.success) {
         // Update message status to sent
