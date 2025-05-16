@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  createContext,
+  useContext,
+} from 'react';
 import {
   View,
   Text,
@@ -10,7 +17,21 @@ import axios from 'axios';
 import { createStyles } from './styles';
 import Header from './Header/Header';
 import InputBox from './InputBox/InputBox';
-import { ThemeProvider, useTheme } from './theme/ThemeContext';
+import { darkTheme, lightTheme, type ThemeColors } from './theme/theme';
+
+interface ThemeContextType {
+  theme: ThemeColors;
+  isDark: boolean;
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextType>({
+  theme: lightTheme,
+  isDark: false,
+  toggleTheme: () => {},
+});
+
+export const useTheme = () => useContext(ThemeContext);
 
 export type ChatRefType = {
   endChat: () => void;
@@ -38,7 +59,7 @@ type AloChatScreenProps = {
   onContinueLater?: () => void;
   memberId?: string;
   transaction?: string;
-  theme?: 'light' | 'dark';
+  initialTheme?: 'light' | 'dark';
 };
 
 export interface MessageType {
@@ -68,6 +89,7 @@ const AloChatContent = ({
   onContinueLater,
   memberId,
   transaction,
+  initialTheme,
 }: AloChatScreenProps) => {
   const [loading, setLoading] = useState(true);
   const [chatToken, setChatToken] = useState('');
@@ -79,14 +101,18 @@ const AloChatContent = ({
   const scrollViewRef = React.useRef<ScrollView>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { theme } = useTheme();
+
+  const [isDark, setIsDark] = useState(
+    initialTheme ? initialTheme === 'dark' : false
+  );
+
+  const theme = isDark ? darkTheme : lightTheme;
+
   const styles = createStyles(theme);
 
-  console.log({
-    activeChatKey,
-    chatToken,
-    messages,
-  });
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+  };
 
   // Additional function to scroll to bottom that can be called manually
   const scrollToBottom = useCallback(() => {
@@ -503,104 +529,106 @@ const AloChatContent = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      {customHeader ? (
-        customHeader
-      ) : (
-        <Header
-          chatEnded={chatEnded}
-          setChatEnded={setChatEnded}
-          chatToken={chatToken}
-          setMessages={setMessages}
-          loading={loading}
-          onClose={onClose}
-          chatRef={chatRef}
-          onContinueLater={onContinueLater}
-        />
-      )}
+    <ThemeContext.Provider
+      value={{ theme: isDark ? darkTheme : lightTheme, isDark, toggleTheme }}
+    >
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        {customHeader ? (
+          customHeader
+        ) : (
+          <Header
+            chatEnded={chatEnded}
+            setChatEnded={setChatEnded}
+            chatToken={chatToken}
+            setMessages={setMessages}
+            loading={loading}
+            onClose={onClose}
+            chatRef={chatRef}
+            onContinueLater={onContinueLater}
+          />
+        )}
 
-      {/* Chat messages */}
-      <ScrollView
-        style={styles.messagesContainer}
-        ref={scrollViewRef}
-        contentContainerStyle={styles.scrollViewContent}
-      >
-        {messages.map((message) => {
-          if (message.from === 'support') {
-            return (
-              <View key={message.id} style={styles.supportMessageContainer}>
-                <View style={styles.supportMessage}>
-                  <Text style={styles.supportMessageText}>
-                    {message.message}
-                  </Text>
+        {/* Chat messages */}
+        <ScrollView
+          style={styles.messagesContainer}
+          ref={scrollViewRef}
+          contentContainerStyle={styles.scrollViewContent}
+        >
+          {messages.map((message) => {
+            if (message.from === 'support') {
+              return (
+                <View key={message.id} style={styles.supportMessageContainer}>
+                  <View style={styles.supportMessage}>
+                    <Text style={styles.supportMessageText}>
+                      {message.message}
+                    </Text>
+                  </View>
                 </View>
+              );
+            }
+
+            // const isLastMessage =
+            //   message.id === Math.max(...messages.map((m) => m.id));
+
+            return (
+              <View key={message.id} style={styles.userMessageContainer}>
+                <View style={styles.userMessage}>
+                  <Text style={styles.userMessageText}>{message.message}</Text>
+                </View>
+
+                {message.status &&
+                  (message.status === 'sent' ? null : ( // ) : null //   </View> //     <Text style={styles.messageStatusText}>Gönderildi</Text> //   <View style={styles.messageStatusContainer}> // isLastMessage ? ( // Only show "Gönderildi" for the last message with 'sent' status
+                    // Always show status for 'sending' or 'failed' messages
+                    <View style={styles.messageStatusContainer}>
+                      <Text
+                        style={[
+                          styles.messageStatusText,
+                          message.status === 'failed' &&
+                            styles.messageStatusError,
+                        ]}
+                      >
+                        {message.status === 'sending'
+                          ? 'Gönderiliyor...'
+                          : 'Gönderilemedi'}
+                      </Text>
+                      {message.status === 'failed' && (
+                        <TouchableOpacity
+                          style={styles.retryButton}
+                          onPress={() => retryMessage(message)}
+                        >
+                          <Text style={styles.retryButtonText}>
+                            Tekrar Dene
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ))}
               </View>
             );
-          }
+          })}
 
-          // const isLastMessage =
-          //   message.id === Math.max(...messages.map((m) => m.id));
-
-          return (
-            <View key={message.id} style={styles.userMessageContainer}>
-              <View style={styles.userMessage}>
-                <Text style={styles.userMessageText}>{message.message}</Text>
-              </View>
-
-              {message.status &&
-                (message.status === 'sent' ? null : ( // ) : null //   </View> //     <Text style={styles.messageStatusText}>Gönderildi</Text> //   <View style={styles.messageStatusContainer}> // isLastMessage ? ( // Only show "Gönderildi" for the last message with 'sent' status
-                  // Always show status for 'sending' or 'failed' messages
-                  <View style={styles.messageStatusContainer}>
-                    <Text
-                      style={[
-                        styles.messageStatusText,
-                        message.status === 'failed' &&
-                          styles.messageStatusError,
-                      ]}
-                    >
-                      {message.status === 'sending'
-                        ? 'Gönderiliyor...'
-                        : 'Gönderilemedi'}
-                    </Text>
-                    {message.status === 'failed' && (
-                      <TouchableOpacity
-                        style={styles.retryButton}
-                        onPress={() => retryMessage(message)}
-                      >
-                        <Text style={styles.retryButtonText}>Tekrar Dene</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                ))}
-            </View>
-          );
-        })}
-
-        {/* Typing indicator */}
-        {/* {isTyping && (
+          {/* Typing indicator */}
+          {/* {isTyping && (
           <View style={styles.supportMessageContainer}>
             <Text style={styles.supportMessage}>Yazıyor...</Text>
           </View>
         )} */}
-      </ScrollView>
+        </ScrollView>
 
-      {/* Message input */}
-      <InputBox
-        chatEnded={chatEnded}
-        loading={loading}
-        inputMessage={inputMessage}
-        setInputMessage={setInputMessage}
-        sendMessage={sendMessage}
-      />
-    </SafeAreaView>
+        {/* Message input */}
+        <InputBox
+          chatEnded={chatEnded}
+          loading={loading}
+          inputMessage={inputMessage}
+          setInputMessage={setInputMessage}
+          sendMessage={sendMessage}
+        />
+      </SafeAreaView>
+    </ThemeContext.Provider>
   );
 };
 
 export default function AloChatScreen(props: AloChatScreenProps) {
-  return (
-    <ThemeProvider initialTheme={props.theme}>
-      <AloChatContent {...props} />
-    </ThemeProvider>
-  );
+  return <AloChatContent {...props} />;
 }

@@ -8,10 +8,9 @@ import {
   Image,
 } from 'react-native';
 import CloseIcon from '../CloseIcon';
-import { useTheme } from '../theme/ThemeContext';
 import { createStyles } from '../styles';
 import { createPopupStyles } from '../theme/styles';
-import type { MessageType } from 'alo-chat-sdk';
+import { useTheme, type MessageType } from 'alo-chat-sdk';
 import axios from 'axios';
 
 type HeaderProps = {

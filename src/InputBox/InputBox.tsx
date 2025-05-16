@@ -2,8 +2,8 @@ import React from 'react';
 import { Image, Platform, TouchableOpacity, View } from 'react-native';
 import { TextInput } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
 import { createStyles } from '../styles';
+import { useTheme } from '../index';
 
 type InputBoxProps = {
   chatEnded: boolean;

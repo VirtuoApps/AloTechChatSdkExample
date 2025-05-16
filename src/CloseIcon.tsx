@@ -1,7 +1,7 @@
 // CloseIcon.tsx
+import { useTheme } from './index';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTheme } from './theme/ThemeContext';
 
 type Props = {
   /** Square side in px */
