@@ -52,13 +52,13 @@ export default App;
 
 | Prop               | Type                           | Required | Description                                                                           |
 | ------------------ | ------------------------------ | -------- | ------------------------------------------------------------------------------------- |
-| `clientEmail`      | `string`                       | Yes      | End‑user’s email.                                                                     |
-| `clientName`       | `string`                       | Yes      | End‑user’s full name.                                                                 |
+| `clientEmail`      | `string`                       | Yes      | End‑user's email.                                                                     |
+| `clientName`       | `string`                       | Yes      | End‑user's full name.                                                                 |
 | `cwid`             | `string`                       | Yes      | Company/workspace ID provided by AloTech.                                             |
 | `namespace`        | `string`                       | Yes      | Chat namespace / tenant identifier.                                                   |
-| `phone_number`     | `string`                       | No       | User’s phone in E.164 format.                                                         |
+| `phone_number`     | `string`                       | No       | User's phone in E.164 format.                                                         |
 | `security_token`   | `string`                       | Yes      | Token for authenticating the session.                                                 |
-| `chatRef`          | `React.RefObject<ChatRefType>` | No       | **New.** Exposes imperative methods & state (see *Chat Ref API*).                     |
+| `chatRef`          | `React.RefObject<ChatRefType>` | No       | **New.** Exposes imperative methods & state (see *Chat Ref API*).                     |
 | `customHeader`     | `ReactElement`                 | No       | Override the default header UI.                                                       |
 | `onClose`          | `( ) ⇒ void`                   | No       | Fired when the user closes the screen.                                                |
 | `initialChatToken` | `string`                       | No       | Resume token for an existing chat.                                                    |
@@ -66,7 +66,9 @@ export default App;
 | `onChatStarted`    | `(info: ChatInfo) ⇒ void`      | No       | Fired after a fresh chat is created.                                                  |
 | `onContinueLater`  | `( ) ⇒ void`                   | No       | **New.** Fired when the user chooses to continue the chat later instead of ending it. |
 | `memberId`         | `string`                       | No       | Optional custom user metadata (e.g., user/member ID for analytics or CRM systems).    |
-| `transaction`         | `string`                       | No    | Optional transaction/session identifier to track user context or origin.              |
+| `transaction`      | `string`                       | No       | Optional transaction/session identifier to track user context or origin.              |
+| `initialTheme`     | `'light' \| 'dark'`            | No       | Optional theme setting to control the chat UI appearance. Defaults to 'light' if not specified.            |
+
 
 
 
