@@ -20,7 +20,7 @@ export default function App() {
       onContinueLater={handleContinueLater}
       memberId="1234567890"
       transaction="1234567890"
-      initialTheme="dark"
+      initialTheme="light"
       client_custom_data={{
         user_id: '1234567890',
         user_name: 'Test User',

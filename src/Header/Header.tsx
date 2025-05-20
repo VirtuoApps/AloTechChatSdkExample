@@ -68,28 +68,20 @@ export default function Header({
   };
 
   const endChat = useCallback(async () => {
-    try {
-      setChatEnded(true);
-      await axios.post('https://chatserver.alo-tech.com/chat-api/end', {
-        token: chatToken,
-      });
+    setChatEnded(true);
+    axios.post('https://chatserver.alo-tech.com/chat-api/end', {
+      token: chatToken,
+    });
 
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          id: prevMessages.length + 1,
-          from: 'support',
-          message: 'Görüşme sonlandırılmıştır.',
-        },
-      ]);
-      onClose?.();
-    } catch (error) {
-      console.error('Failed to end chat:', error);
-      Alert.alert(
-        'Hata',
-        'Görüşme sonlandırılırken bir hata oluştu, lütfen tekrar deneyin.'
-      );
-    }
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      {
+        id: prevMessages.length + 1,
+        from: 'support',
+        message: 'Görüşme sonlandırılmıştır.',
+      },
+    ]);
+    onClose?.();
   }, [chatToken, setChatEnded, setMessages, onClose]);
 
   useEffect(() => {

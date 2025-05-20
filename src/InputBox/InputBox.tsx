@@ -23,14 +23,13 @@ export default function InputBox({
   const { theme, isDark } = useTheme();
   const styles = createStyles(theme);
 
-  let extraStyles: any = {};
-
-  if (isDark) {
-    extraStyles = {
+  // Modified styling to ensure consistency across platforms
+  const extraStyles = {
+    ...(isDark && {
       borderWidth: 1,
       borderColor: '#343A40',
-    };
-  }
+    }),
+  };
 
   return (
     <KeyboardAvoidingView
