@@ -12,7 +12,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Keyboard,
-  Dimensions,
   Platform,
   StatusBar,
 } from 'react-native';
@@ -104,12 +103,10 @@ const AloChatContent = ({
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [safeAreaTop, setSafeAreaTop] = useState(
+  const [safeAreaTop] = useState(
     Platform.OS === 'ios' ? StatusBar.currentHeight || 20 : 0
   );
-  const [safeAreaBottom, setSafeAreaBottom] = useState(
-    Platform.OS === 'ios' ? 34 : 0
-  );
+  const [safeAreaBottom] = useState(Platform.OS === 'ios' ? 34 : 0);
 
   // const [isTyping, setIsTyping] = useState(false);
   const scrollViewRef = React.useRef<ScrollView>(null);
