@@ -11,7 +11,6 @@ import CloseIcon from '../CloseIcon';
 import { createStyles } from '../styles';
 import { createPopupStyles } from '../theme/styles';
 import { useTheme, type MessageType } from '../index';
-import axios from 'axios';
 
 type HeaderProps = {
   chatEnded: boolean;
@@ -39,10 +38,10 @@ export default function Header({
   const styles = createStyles(theme);
   const popupStyles = createPopupStyles(theme);
 
-  const handleClosePress = () => {
-    if (chatEnded) return;
-    setShowPopup(true);
-  };
+  // const handleClosePress = () => {
+  //   if (chatEnded) return;
+  //   setShowPopup(true);
+  // };
 
   const handleContinueLater = () => {
     setShowPopup(false);
