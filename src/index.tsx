@@ -9,10 +9,14 @@ import React, {
 import {
   View,
   Text,
-  SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  Keyboard,
+  Dimensions,
+  Platform,
+  StatusBar,
 } from 'react-native';
+import type { KeyboardEvent, EmitterSubscription } from 'react-native';
 import axios from 'axios';
 import { createStyles } from './styles';
 import Header from './Header/Header';
@@ -99,6 +103,14 @@ const AloChatContent = ({
   const [chatEnded, setChatEnded] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [safeAreaTop, setSafeAreaTop] = useState(
+    Platform.OS === 'ios' ? StatusBar.currentHeight || 20 : 0
+  );
+  const [safeAreaBottom, setSafeAreaBottom] = useState(
+    Platform.OS === 'ios' ? 34 : 0
+  );
+
   // const [isTyping, setIsTyping] = useState(false);
   const scrollViewRef = React.useRef<ScrollView>(null);
   const socketRef = useRef<WebSocket | null>(null);
@@ -121,6 +133,49 @@ const AloChatContent = ({
       setIsDark(initialTheme === 'dark');
     }
   }, [initialTheme]);
+
+  // Keyboard event listeners
+  useEffect(() => {
+    let keyboardWillShowListener: EmitterSubscription | undefined;
+    let keyboardWillHideListener: EmitterSubscription | undefined;
+    let keyboardDidShowListener: EmitterSubscription | undefined;
+    let keyboardDidHideListener: EmitterSubscription | undefined;
+
+    if (Platform.OS === 'ios') {
+      // iOS-specific events
+      keyboardWillShowListener = Keyboard.addListener(
+        'keyboardWillShow',
+        (e: KeyboardEvent) => {
+          setKeyboardHeight(e.endCoordinates.height);
+        }
+      );
+      keyboardWillHideListener = Keyboard.addListener(
+        'keyboardWillHide',
+        () => {
+          setKeyboardHeight(0);
+        }
+      );
+    } else {
+      // Android-specific events
+      keyboardDidShowListener = Keyboard.addListener(
+        'keyboardDidShow',
+        (e: KeyboardEvent) => {
+          setKeyboardHeight(e.endCoordinates.height);
+        }
+      );
+      keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardHeight(0);
+      });
+    }
+
+    return () => {
+      // Clean up listeners
+      keyboardWillShowListener?.remove();
+      keyboardWillHideListener?.remove();
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
 
   // Additional function to scroll to bottom that can be called manually
   const scrollToBottom = useCallback(() => {
@@ -533,7 +588,15 @@ const AloChatContent = ({
     <ThemeContext.Provider
       value={{ theme: isDark ? darkTheme : lightTheme, isDark, toggleTheme }}
     >
-      <SafeAreaView style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: safeAreaTop,
+            paddingBottom: keyboardHeight > 0 ? 0 : safeAreaBottom,
+          },
+        ]}
+      >
         {/* Header */}
         {customHeader ? (
           customHeader
@@ -579,8 +642,7 @@ const AloChatContent = ({
                 </View>
 
                 {message.status &&
-                  (message.status === 'sent' ? null : ( // ) : null //   </View> //     <Text style={styles.messageStatusText}>Gönderildi</Text> //   <View style={styles.messageStatusContainer}> // isLastMessage ? ( // Only show "Gönderildi" for the last message with 'sent' status
-                    // Always show status for 'sending' or 'failed' messages
+                  (message.status === 'sent' ? null : (
                     <View style={styles.messageStatusContainer}>
                       <Text
                         style={[
@@ -618,14 +680,16 @@ const AloChatContent = ({
         </ScrollView>
 
         {/* Message input */}
-        <InputBox
-          chatEnded={chatEnded}
-          loading={loading}
-          inputMessage={inputMessage}
-          setInputMessage={setInputMessage}
-          sendMessage={sendMessage}
-        />
-      </SafeAreaView>
+        <View style={{ marginBottom: keyboardHeight }}>
+          <InputBox
+            chatEnded={chatEnded}
+            loading={loading}
+            inputMessage={inputMessage}
+            setInputMessage={setInputMessage}
+            sendMessage={sendMessage}
+          />
+        </View>
+      </View>
     </ThemeContext.Provider>
   );
 };

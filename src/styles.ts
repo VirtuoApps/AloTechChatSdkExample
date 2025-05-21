@@ -7,6 +7,7 @@ export const createStyles = (theme: ThemeColors) =>
       flex: 1,
       height: '100%',
       backgroundColor: theme.background,
+      marginTop: 25,
     },
     header: {
       flexDirection: 'row',

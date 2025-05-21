@@ -68,19 +68,19 @@ export default function Header({
   };
 
   const endChat = useCallback(async () => {
-    setChatEnded(true);
-    axios.post('https://chatserver.alo-tech.com/chat-api/end', {
-      token: chatToken,
-    });
+    // setChatEnded(true);
+    // axios.post('https://chatserver.alo-tech.com/chat-api/end', {
+    //   token: chatToken,
+    // });
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        id: prevMessages.length + 1,
-        from: 'support',
-        message: 'Görüşme sonlandırılmıştır.',
-      },
-    ]);
+    // setMessages((prevMessages) => [
+    //   ...prevMessages,
+    //   {
+    //     id: prevMessages.length + 1,
+    //     from: 'support',
+    //     message: 'Görüşme sonlandırılmıştır.',
+    //   },
+    // ]);
     onClose?.();
   }, [chatToken, setChatEnded, setMessages, onClose]);
 
@@ -158,7 +158,7 @@ export default function Header({
           thumbColor={isDark ? '#f5dd4b' : '#f4f3f4'}
           style={{ marginRight: 10 }}
         /> */}
-        <TouchableOpacity onPress={handleClosePress}>
+        <TouchableOpacity onPress={handleEndChatConfirmation}>
           <CloseIcon color={theme.text} />
         </TouchableOpacity>
       </View>
