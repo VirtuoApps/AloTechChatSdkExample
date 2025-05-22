@@ -16,6 +16,8 @@ export default function App() {
       namespace="appic.alo-tech.com"
       phone_number="5398292553"
       security_token="bb0d744673c8fdfbd6e3397da9560212c517308fb3338f3a9edc075fba875181"
+      initialChatKey="ahRzfm11c3RlcmktaGl6bWV0bGVyaXI0CxIKQWN0aXZlQ2hhdCIkNzM1ZTM4NmItZjcwOC00Mjg3LTg3Y2MtYWNlNWFmNDgzNGFlDKIBEmFwcGljLmFsby10ZWNoLmNvbQ"
+      initialChatToken="c0401bcb823dacc89b4f217e69a1287473992a8b3a259888b033bbb84c344ffd"
       chatRef={chatRef}
       onContinueLater={handleContinueLater}
       memberId="1234567890"

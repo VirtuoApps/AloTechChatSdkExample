@@ -324,6 +324,11 @@ const AloChatContent = ({
 
       socket.onopen = () => {
         console.log('WebSocket connected');
+
+        // Upon reconnection, fetch any messages we might have missed
+        if (messages.length > 0 && chatToken && activeChatKey) {
+          fetchMissedMessages();
+        }
       };
 
       socket.onmessage = (event) => {
@@ -381,6 +386,8 @@ const AloChatContent = ({
 
       socket.onclose = () => {
         console.log('WebSocket disconnected');
+        socketRef.current = null;
+
         // Attempt to reconnect if chat isn't ended
         if (!chatEnded) {
           setTimeout(() => {
@@ -394,8 +401,105 @@ const AloChatContent = ({
       socketRef.current = socket;
     } catch (error) {
       console.error('Failed to connect to WebSocket:', error);
+      // Try reconnecting after 3 seconds
+      if (!chatEnded) {
+        setTimeout(() => {
+          if (!chatEnded && chatToken && activeChatKey) {
+            connectWebSocket();
+          }
+        }, 3000);
+      }
     }
-  }, [activeChatKey, chatToken, chatEnded]);
+  }, [activeChatKey, chatToken, chatEnded, messages]);
+
+  // Function to fetch missed messages
+  const fetchMissedMessages = useCallback(async () => {
+    try {
+      if (!chatToken || !activeChatKey) return;
+
+      // Get access token first
+      const tokenRes = await axios.post(
+        'https://api.alo-tech.com/application/access_token/',
+        {
+          client_id: 'deae0fdc12ccfa63f94dd19f66bfcb10',
+          client_secret:
+            'be4c9e5959ec2e27c3229f527015d0f07e353294384308e75e0e166ca64d54f6',
+        },
+        {
+          headers: {
+            tenant: 'appic.alo-tech.com',
+          },
+        }
+      );
+
+      // Fetch chat history
+      const chatHistoryRes = await axios.get(
+        `https://api.alo-tech.com/v3/chats/${activeChatKey}/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenRes.data.access_token}`,
+            Tenant: 'appic.alo-tech.com',
+          },
+        }
+      );
+
+      const chatHistory = chatHistoryRes.data.chat_history;
+
+      if (chatHistory && Array.isArray(chatHistory)) {
+        // Create a set of existing message IDs for quick lookup
+        const existingMsgIds = new Set();
+        messages.forEach((msg) => {
+          if (msg.msg_id) {
+            existingMsgIds.add(msg.msg_id);
+          }
+        });
+
+        // Find new messages that aren't in our current list
+        const newMessages: MessageType[] = [];
+
+        // Process messages from history that aren't in our current set
+        for (const data of chatHistory) {
+          // Skip if not a text message or empty
+          if (
+            data.type !== 'text' ||
+            data.type === 'system' ||
+            !data.message ||
+            data.message.length === 0
+          ) {
+            continue;
+          }
+
+          // This is a new message, add it
+          const isSupportMessage = data.sender !== 'client';
+
+          const formattedTimestamp =
+            data.insert_date && data.insert_date.date && data.insert_date.time
+              ? `${data.insert_date.date} ${data.insert_date.time}`
+              : new Date().toISOString();
+
+          newMessages.push({
+            id: Date.now(),
+            from: isSupportMessage ? 'support' : 'user',
+            message: data.message || '',
+            status: 'sent',
+            timestamp: formattedTimestamp,
+            sender_name: isSupportMessage
+              ? data.name || data.nickname || 'Support'
+              : 'You',
+            avatar: data.avatar || undefined,
+            msg_id: data.msg_id,
+          });
+        }
+
+        // Add new messages if we found any
+        if (newMessages.length > 0) {
+          setMessages(newMessages);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch missed messages:', error);
+    }
+  }, [activeChatKey, chatToken, messages]);
 
   useEffect(() => {
     initializeChat().then(() => {
@@ -616,10 +720,13 @@ const AloChatContent = ({
           ref={scrollViewRef}
           contentContainerStyle={styles.scrollViewContent}
         >
-          {messages.map((message) => {
+          {messages.map((message, index) => {
             if (message.from === 'support') {
               return (
-                <View key={message.id} style={styles.supportMessageContainer}>
+                <View
+                  key={message.id + index}
+                  style={styles.supportMessageContainer}
+                >
                   <View style={styles.supportMessage}>
                     <Text style={styles.supportMessageText}>
                       {message.message}
@@ -633,7 +740,10 @@ const AloChatContent = ({
             //   message.id === Math.max(...messages.map((m) => m.id));
 
             return (
-              <View key={message.id} style={styles.userMessageContainer}>
+              <View
+                key={message.id + index}
+                style={styles.userMessageContainer}
+              >
                 <View style={styles.userMessage}>
                   <Text style={styles.userMessageText}>{message.message}</Text>
                 </View>
