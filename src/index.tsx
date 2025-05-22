@@ -284,6 +284,7 @@ const AloChatContent = ({
             phone_number: phone_number,
             security_token: security_token,
             client_custom_data: JSON.stringify(client_custom_data),
+            client_websocket: true,
           }
         );
         setChatToken(response.data.token);
